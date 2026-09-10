@@ -14,13 +14,24 @@ float pitch = 0;
 DJIRoninController djiRoninController(CAN_TX, CAN_RX, CAN_RATE);
 
 void setup() {
+  uint8_t SDK_version[4];
+
   // Set up serial for debugging
   Serial.begin(115200);
-  delay(1000);
 
-  if (djiRoninController.begin()) {
-    Serial.println("CAN bus started!");
+  delay(10000); // XXX(yifan): Wait for the DJI Ronin gimbal to fully start.
+
+  while (!djiRoninController.begin()) {
+    DEBUGF("Waiting for DJI Ronin to start...\n");
+    delay(1000);
   }
+
+  while (!djiRoninController.get_version(SDK_version)) {
+    DEBUGF("Reading DJI Ronin SDK version...\n");
+    delay(1000);
+  }
+
+  DEBUGF("DJI R SDK Version=%d.%d.%d.%d\n", SDK_version[0], SDK_version[1], SDK_version[2], SDK_version[3]);
 }
 
 void loop() {
